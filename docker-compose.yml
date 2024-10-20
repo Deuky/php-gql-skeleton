@@ -1,35 +1,25 @@
 version: "3.9"
+
 services:
-  php-gql:
+  nginx:
+    image: nginx
+    ports:
+      - 3002:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./sandbox:/var/sandbox
+    restart: always
+
+  react:
     build:
-      context: .
-      target: development
-    command: nodemon --exec 'php ./index.php' --watch '.' --legacy-watch -e php
+      dockerfile: react/Dockerfile
+      target: ${ENV:-development}
     ports:
       - "3003:80"
     volumes:
-      - ./assets:/var/www/html/assets
-      - ./src:/var/www/html/src
-      - ./index.php:/var/www/html/index.php
-    environment:
-      - APP_ENV=local
-      - APP_BASE_DOMAIN=vertuolocal.com
-      - PORT=80
-      - DB_HOST=mysql_gql
-      - DB_PORT=3306
-      - DB_DATABASE=php-gql
-      - DB_USERNAME=guest
-      - DB_PASSWORD=guest
-      - MODE=DEVELOPMENT
-      - LOG_ENABLED=true
-      - SECURE=false
-      - PHP_SESSION_EXPIRATION=240
-      - SANDBOX_ACTIVE=true
-      #var for jwt auth
-      - MEMORY_LIMIT=2048M
-    depends_on:
-      mysql_gql:
-        condition: service_healthy
+      - .:/var/www/html
+    env_file:
+      - src/.env
     healthcheck:
       test:
         [
@@ -47,21 +37,25 @@ services:
       timeout: 10s
       retries: 10
 
-  mysql_gql:
+  php:
+    build:
+      dockerfile: php/Dockerfile
+      target: ${ENV:-development}
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - src/.env
+
+  mysql:
     image: mysql:8
     restart: always
 
     volumes:
       - ./seed:/docker-entrypoint-initdb.d
       - ./mysql.cnf:/etc/mysql/conf.d/my.cnf
-    command: --default-authentication-plugin=mysql_native_password
-    ports:
-      - "3308:3306"
-    environment:
-      - MYSQL_DATABASE=php-gql
-      - MYSQL_USER=guest
-      - MYSQL_PASSWORD=guest
-      - MYSQL_ROOT_PASSWORD=root
+      - database-app:/var/lib/mysql
+    env_file:
+      - mysql/.env
     healthcheck:
       test:
         [
@@ -78,3 +72,6 @@ services:
       timeout: 10s
       retries: 20
       start_period: 60s
+
+volumes:
+  database-app:

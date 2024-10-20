@@ -1,36 +1,41 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/src/libs/Logger/index.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
+use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter as GraphQLReactPromiseAdapter;
+use React\Http\Message\Response;
+use React\Http\Message\ServerRequest;
 use React\Http\Middleware\RequestBodyBufferMiddleware;
 use React\Http\Middleware\RequestBodyParserMiddleware;
 use React\Http\Middleware\StreamingRequestMiddleware;
-use Vertuoza\Libs\Logger\ApplicationLogger;
-use Vertuoza\Libs\Logger\LogContext;
-use function React\Promise\resolve;
-use React\Http\Message\Response;
-use React\Http\Message\ServerRequest;
-use function Vertuoza\Libs\Logger\startLogger;
-use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use Vertuoza\Api\Graphql\Context\RequestContext;
 use Vertuoza\Api\Graphql\GqlMiddlewares;
+use Vertuoza\Kernel;
+use Vertuoza\Libs\Logger\ApplicationLogger;
+use Vertuoza\Libs\Logger\LogContext;
+use Vertuoza\Libs\Logger\Logger;
+use function React\Promise\resolve;
 
+$kernel = Kernel::getInstance();
+$kernel->init();
+$kernel->load();
 
-$logger = startLogger();
+$logger = new Logger(
+    ApplicationLogger::getInstance()
+);
 
 ini_set('memory_limit', $_ENV['MEMORY_LIMIT']);
 
 try {
-    $graphQLPromiseAdapter = new ReactPromiseAdapter();
-    $dataLoaderPromiseAdapter = new \Overblog\PromiseAdapter\Adapter\ReactPromiseAdapter();
+    $graphQLPromiseAdapter = new GraphQLReactPromiseAdapter();
+    $dataLoaderPromiseAdapter = $kernel->getPromiseAdapter();
 
     $http = new React\Http\HttpServer(
         new StreamingRequestMiddleware(),
         new RequestBodyBufferMiddleware(20 * 1024 * 1024),
         new RequestBodyParserMiddleware(20 * 1024 * 1024, 1),
         GqlMiddlewares::sandbox(),
-        RequestContext::middleware($dataLoaderPromiseAdapter),
+        RequestContext::middleware(),
         GqlMiddlewares::schema($graphQLPromiseAdapter, $dataLoaderPromiseAdapter),
         fn (ServerRequest $request) => resolve(new Response(404))
     );

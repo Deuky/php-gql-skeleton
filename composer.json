@@ -1,11 +1,8 @@
 {
   "autoload": {
     "psr-4": {
-      "Vertuoza\\Libs\\": "src/libs/",
-      "Vertuoza\\Usecases\\": "src/usecases/",
-      "Vertuoza\\Repositories\\": "src/repositories/",
-      "Vertuoza\\Entities\\": "src/entities/",
-      "Vertuoza\\Api\\Graphql\\": "src/graphql/"
+      "Vertuoza\\Api\\Graphql\\": "src/graphql/",
+      "Vertuoza\\": "src/"
     }
   },
   "require": {
@@ -20,6 +17,7 @@
     "react/http": "^1.9",
     "react/socket": "^1.15",
     "react/async": "^4.1.0",
-    "react/promise": "^3.1"
+    "react/promise": "^3.1",
+    "symfony/serializer": "^7.1"
   }
 }

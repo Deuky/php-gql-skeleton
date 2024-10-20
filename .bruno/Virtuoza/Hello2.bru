@@ -1,0 +1,17 @@
+meta {
+  name: Hello2
+  type: graphql
+  seq: 5
+}
+
+post {
+  url: http://0.0.0.0:3002/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    hello
+  }
+}

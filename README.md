@@ -11,11 +11,15 @@ type Query {
 }
 ```
 
+# Pattern
+https://refactoring.guru/design-patterns/abstract-factory
+
 # Getting started
 
 you can simply run the solution with docker and docker-compose.
 
 ```bash
+make
 docker-compose up
 ```
 

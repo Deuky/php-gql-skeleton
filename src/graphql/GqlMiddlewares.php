@@ -2,30 +2,46 @@
 
 namespace Vertuoza\Api\Graphql;
 
-use function React\Promise\resolve;
-
+use Closure;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\GraphQL;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use Overblog\DataLoader\DataLoader;
 use Overblog\PromiseAdapter\PromiseAdapterInterface;
-use Vertuoza\Api\Graphql\Resolvers\Mutation;
-use Vertuoza\Api\Graphql\Resolvers\Query;
 use React\Http\Message\Response;
 use React\Http\Message\ServerRequest;
 use Vertuoza\Api\Graphql\Errors\GqlErrorHandler;
+use Vertuoza\Api\Graphql\Resolvers\Query;
 use Vertuoza\Libs\Logger\ApplicationLogger;
 use Vertuoza\Libs\Logger\LogContext;
+use function React\Promise\resolve;
 
 class GqlMiddlewares
 {
+    /**
+     * @param ServerRequest $request
+     *
+     * @return bool
+     *
+     * @deprecated not need
+     */
     private static function isSandboxRoute(ServerRequest $request)
     {
-        return $request->getUri()->getPath() === '/' && $request->getMethod() === 'GET' && strtolower($_ENV['SANDBOX_ACTIVE']) === 'true';
+        return $request->getUri()->getPath() === '/'
+            && $request->getMethod() === 'GET'
+            && strtolower($_ENV['SANDBOX_ACTIVE']) === 'true';
     }
 
+    /**
+     * @param $request
+     *
+     * @return bool
+     *
+     * @deprecated not need
+     */
     private static function isGraphQLQueryPath($request)
     {
         $method = $request->getMethod();
@@ -37,7 +53,11 @@ class GqlMiddlewares
         return strpos($request->getUri()->getPath(), $prefix) === 0;
     }
 
-    static function sandbox()
+    /**
+     * @return Closure
+     * @deprecated change this
+     */
+    public static function sandbox(): Closure
     {
         return function (ServerRequest $request, callable $next) {
             if (self::isSandboxRoute($request)) {
@@ -50,15 +70,21 @@ class GqlMiddlewares
         };
     }
 
-    static function schema(\GraphQL\Executor\Promise\PromiseAdapter $graphQLPromiseAdapter, PromiseAdapterInterface $dataLoaderPromiseAdapter)
+    /**
+     * @param PromiseAdapter $graphQLPromiseAdapter
+     * @param PromiseAdapterInterface $dataLoaderPromiseAdapter
+     *
+     * @return Closure
+     */
+    public static function schema(PromiseAdapter $graphQLPromiseAdapter, PromiseAdapterInterface $dataLoaderPromiseAdapter)
     {
         $query = new Query();
         // $mutation = new Mutation();
 
         $schema = new Schema((
-                new SchemaConfig())
-                ->setQuery($query)
-                ->setTypeLoader([Types::class, 'byTypename'])
+        new SchemaConfig())
+            ->setQuery($query)
+            ->setTypeLoader([Types::class, 'byTypeName'])
         );
 
         return function (ServerRequest $request, $next) use ($schema, $graphQLPromiseAdapter) {
@@ -68,7 +94,7 @@ class GqlMiddlewares
                     ->setErrorsHandler(function (array $errors, ?callable $formatter) use ($request) {
                         $context = $request->getAttribute('app-context');
                         ApplicationLogger::getInstance()->info('Log for bodyx with error', new LogContext(null, null), $errors);
-                        return GqlErrorHandler::handle($errors, $formatter, $context->userContext);
+                        return GqlErrorHandler::handle($errors, $formatter, $context->getUserContext());
                     });
 
                 $rawInput = $request->getBody()->__toString();
@@ -89,6 +115,7 @@ class GqlMiddlewares
                         $result->errors = $config->getErrorsHandler()($result->errors, $config->getErrorFormatter());
                     }
                 });
+
                 DataLoader::await($promise);
                 return $promise->then($handler);
             }

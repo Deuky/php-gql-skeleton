@@ -2,29 +2,52 @@
 
 namespace Vertuoza\Api\Graphql\Context;
 
+/**
+ * @todo change class name
+ */
 class UserRequestContext
 {
-  private string|null $userId;
-  private string|null $tenantId;
+    /**
+     * @var string|null
+     */
+    private string|null $userId;
 
-  public function __construct(string|null $userId, string|null $tenantId)
-  {
-    $this->userId = $userId;
-    $this->tenantId = $tenantId;
-  }
+    /**
+     * @var string|null
+     */
+    private string|null $tenantId;
 
-  public function getUserId(): string|null
-  {
-    return $this->userId;
-  }
+    /**
+     * @param string|null $userId
+     * @param string|null $tenantId
+     */
+    public function __construct(string|null $userId, string|null $tenantId)
+    {
+        $this->userId = $userId;
+        $this->tenantId = $tenantId;
+    }
 
-  public function getTenantId(): string|null
-  {
-    return $this->tenantId;
-  }
+    /**
+     * @return string|null
+     */
+    public function getUserId(): string|null
+    {
+        return $this->userId;
+    }
 
-  public function isLogged(): bool
-  {
-    return $this->userId !== null && $this->tenantId !== null;
-  }
+    /**
+     * @return string|null
+     */
+    public function getTenantId(): string|null
+    {
+        return $this->tenantId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLogged(): bool
+    {
+        return ($this->userId ?? null) && ($this->tenantId ?? null);
+    }
 }

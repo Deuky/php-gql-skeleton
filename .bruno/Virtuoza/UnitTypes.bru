@@ -1,0 +1,21 @@
+meta {
+  name: UnitTypes
+  type: graphql
+  seq: 4
+}
+
+post {
+  url: http://0.0.0.0:3003/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    unitTypes {
+      id
+      name
+      isSystem
+    }
+  }
+}

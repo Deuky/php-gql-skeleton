@@ -1,0 +1,19 @@
+meta {
+  name: UnitTypeById
+  type: graphql
+  seq: 3
+}
+
+post {
+  url: http://0.0.0.0:3003/graphql
+  body: graphql
+  auth: none
+}
+
+body:graphql {
+  query {
+    unitTypeById (id: "4c2241c9-841f-44c9-9a51-18cfd8f37890") {
+      id
+    }
+  }
+}

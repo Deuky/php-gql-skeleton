@@ -4,22 +4,39 @@ namespace Vertuoza\Libs\Logger;
 
 class LogContext
 {
-  private string|null $tenantId;
-  private string|null $userId;
+    /**
+     * @var string|null
+     */
+    private string|null $tenantId;
 
-  function __construct(string|null $tenantId, string|null $userId)
-  {
-    $this->tenantId = $tenantId;
-    $this->userId = $userId;
-  }
+    /**
+     * @var string|null
+     */
+    private string|null $userId;
 
-  public function getTenantId(): string|null
-  {
-    return $this->tenantId;
-  }
+    /**
+     * @param string|null $tenantId
+     * @param string|null $userId
+     */
+    public function __construct(string|null $tenantId, string|null $userId)
+    {
+        $this->tenantId = $tenantId;
+        $this->userId = $userId;
+    }
 
-  public function getUserId(): string|null
-  {
-    return $this->userId;
-  }
+    /**
+     * @return string|null
+     */
+    public function getTenantId(): string|null
+    {
+        return $this->tenantId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserId(): string|null
+    {
+        return $this->userId;
+    }
 }

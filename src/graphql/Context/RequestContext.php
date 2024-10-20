@@ -1,28 +1,59 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Vertuoza\Api\Graphql\Context;
 
-use Overblog\PromiseAdapter\PromiseAdapterInterface;
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Vertuoza\Usecases\UseCasesFactory;
-use Vertuoza\Repositories\Database\QueryBuilder;
-use Vertuoza\Repositories\RepositoriesFactory;
+use Vertuoza\Factories\UseCasesFactory;
+use Vertuoza\Kernel;
 
 class RequestContext
 {
-    public function __construct()
-    {
-    }
+    /**
+     * @var ServerRequestInterface
+     */
+    protected ServerRequestInterface $request;
 
-    public ServerRequestInterface $request;
-    public UserRequestContext $userContext;
-    public UseCasesFactory $useCases;
-    public array $headerContext;
+    /**
+     * @var UserRequestContext
+     */
+    protected UserRequestContext $userContext;
 
-    function addCookie(string $cookieName, string $cookieValue, int $exp = 0, string $domain = "", string $path = "/", bool $secure = false, bool $httpOnly = false, string $sameSite = "Lax")
+    /**
+     * @var UseCasesFactory
+     */
+    protected UseCasesFactory $useCases;
+
+    /**
+     * @var array
+     */
+    protected array $headers = [];
+
+    /**
+     * @param string $cookieName
+     * @param string $cookieValue
+     * @param int $exp
+     * @param string $domain
+     * @param string $path
+     * @param bool $secure
+     * @param bool $httpOnly
+     * @param string $sameSite
+     * @return void
+     *
+     * @todo use cookie
+     * @todo maybe create class for cookie
+     */
+    public function addCookie(
+        string $cookieName,
+        string $cookieValue,
+        int $exp = 0,
+        string $domain = "",
+        string $path = "/",
+        bool $secure = false,
+        bool $httpOnly = false,
+        string $sameSite = "Lax"
+    ): void
     {
         $expires = gmdate('D, d M Y H:i:s T', $exp); // Converting the expiration time to the correct format
         $path = "/";
@@ -41,49 +72,102 @@ class RequestContext
         $this->headerContext[] = ["Set-Cookie" => $cookieHeader];
     }
 
-    function isLogged(): bool
+    /**
+     * @return bool
+     */
+    public function isLogged(): bool
     {
         return isset($this->userContext) && $this->userContext->isLogged();
     }
 
-    static function middleware(PromiseAdapterInterface $dataLoaderPromiseAdapter)
+    /**
+     * @return Closure
+     *
+     * @todo move middleware
+     */
+
+    public static function middleware(): Closure
     {
-        return function (ServerRequestInterface $request, callable $next) use ($dataLoaderPromiseAdapter) {
+        return function (ServerRequestInterface $request, callable $next) {
             // Recreate a new connection each http call/
 
-            $database = new QueryBuilder();
+            $userContext = new UserRequestContext(
+                '448ef4f1-56e1-48be-838c-d147b5f09705',
+                '112c33ae-3dbe-431b-994d-fffffe6fd49b'
+            );
 
-
-            $userContext = new UserRequestContext('448ef4f1-56e1-48be-838c-d147b5f09705', '112c33ae-3dbe-431b-994d-fffffe6fd49b');
-
-            $repositories = new RepositoriesFactory($database, $dataLoaderPromiseAdapter);
-
-            $useCases = new UseCasesFactory($userContext, $repositories);
+            $useCases = new UseCasesFactory($userContext);
 
             $context = new RequestContext();
-            $context->useCases = $useCases;
-            $context->request = $request;
-            $context->headerContext = array();
-            $context->userContext = $userContext;
-
+            $context->setUseCases($useCases)
+                ->setRequest($request)
+                ->setUserContext($userContext);
 
             return $next(
                 $request->withAttribute('app-context', $context)
-            )->then(function (ResponseInterface $response) use ($database, $context) {
-
-                foreach ($context->headerContext as $header) {
+            )->then(function (ResponseInterface $response) use ($context) {
+                foreach ($context->headers as $header) {
                     foreach ($header as $name => $value) {
                         $response = $response->withHeader($name, $value);
                     }
                 }
+                $kernel = Kernel::getInstance();
 
-                $database->getConnection()->disconnect();
+                $kernel->getDatabase()->getConnection()->disconnect();
                 return $response;
             });
         };
     }
-}
 
-/**
- * Insert context in app-context attribute
- */
+    /**
+     * @param ServerRequestInterface $request
+     *
+     * @return static
+     */
+    public function setRequest(ServerRequestInterface $request): static
+    {
+        $this->request = $request;
+
+        return $this;
+    }
+
+    /**
+     * @param UseCasesFactory $useCases
+     *
+     * @return static
+     */
+    public function setUseCases(UseCasesFactory $useCases): static
+    {
+        $this->useCases = $useCases;
+
+        return $this;
+    }
+
+    /**
+     * @param UserRequestContext $userContext
+     *
+     * @return static
+     */
+    public function setUserContext(UserRequestContext $userContext): static
+    {
+        $this->userContext = $userContext;
+
+        return $this;
+    }
+
+    /**
+     * @return UserRequestContext
+     */
+    public function getUserContext(): UserRequestContext
+    {
+        return $this->userContext;
+    }
+
+    /**
+     * @return UseCasesFactory
+     */
+    public function getUseCases(): UseCasesFactory
+    {
+        return $this->useCases;
+    }
+}
