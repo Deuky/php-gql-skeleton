@@ -6,15 +6,18 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use Illuminate\Database\Capsule\Manager;
-use Overblog\PromiseAdapter\PromiseAdapterInterface;
+use Overblog\PromiseAdapter\PromiseAdapterInterface as OverblogPromiseAdapterInterface;
 use React\Http\Message\ServerRequest;
 use Symfony\Component\Serializer\Serializer;
-use Vertuoza\Api\Graphql\Resolvers\Query;
 use Vertuoza\Api\Graphql\Types;
 use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\SingletonFactory;
 use Vertuoza\Interface\DatabaseInterface;
+use Vertuoza\Middleware\AppContext;
+use Vertuoza\Middleware\GraphQLMiddleware;
+use Vertuoza\Middleware\Sandbox;
 use Vertuoza\Patterns\SingletonPattern;
+use GraphQL\Executor\Promise\PromiseAdapter as GraphQLPromiseAdapterInterface;
 
 class Kernel extends SingletonPattern
 {
@@ -34,9 +37,9 @@ class Kernel extends SingletonPattern
     protected ServerRequest $serverRequest;
 
     /**
-     * @var PromiseAdapterInterface
+     * @var OverblogPromiseAdapterInterface
      */
-    protected PromiseAdapterInterface $promiseAdapter;
+    protected OverblogPromiseAdapterInterface $promiseAdapter;
 
     /**
      * @var ObjectType
@@ -55,6 +58,10 @@ class Kernel extends SingletonPattern
     protected array $repositories;
     protected array $useCases;
     protected UserRequestContext $userRequestContext;
+    protected AppContext $appContext;
+    protected Sandbox $sandbox;
+    protected GraphQLMiddleware $graphqlMiddleware;
+    protected GraphQLPromiseAdapterInterface $graphqlPromiseAdapter;
 
     public function init(): void
     {
@@ -172,9 +179,9 @@ class Kernel extends SingletonPattern
         return include $this->getConfigFilename($filename);
     }
 
-    public function getPromiseAdapter()
+    public function getOverblogPromiseAdapter(): OverblogPromiseAdapterInterface
     {
-        return $this->promiseAdapter ??= $this->containers['factory'][PromiseAdapterInterface::class]
+        return $this->promiseAdapter ??= $this->containers['factory'][OverblogPromiseAdapterInterface::class]
             ->newInstance();
     }
 
@@ -182,7 +189,7 @@ class Kernel extends SingletonPattern
     {
         return $this->repositories[$repositoryClassName] ??= $this->containers['factory'][$repositoryClassName]
             ->addConstructorArgument('database', $this->getDatabase())
-            ->addConstructorArgument('promiseAdapter', $this->getPromiseAdapter())
+            ->addConstructorArgument('promiseAdapter', $this->getOverblogPromiseAdapter())
             ->newInstance();
     }
 
@@ -190,7 +197,7 @@ class Kernel extends SingletonPattern
     {
         return $this->useCases[$useCaseClassName] ??= $this->containers['factory'][$useCaseClassName]
             ->addConstructorArgument('database', $this->getDatabase())
-            ->addConstructorArgument('promiseAdapter', $this->getPromiseAdapter())
+            ->addConstructorArgument('promiseAdapter', $this->getOverblogPromiseAdapter())
             ->newInstance();
     }
 
@@ -203,5 +210,32 @@ class Kernel extends SingletonPattern
             '448ef4f1-56e1-48be-838c-d147b5f09705',
             '112c33ae-3dbe-431b-994d-fffffe6fd49b'
         );
+    }
+
+    public function getAppContext(): AppContext
+    {
+        return $this->appContext ??= $this->containers['factory'][AppContext::class]
+            ->newInstance();
+    }
+
+    public function getSandbox(): Sandbox
+    {
+        return $this->sandbox ??= $this->containers['factory'][Sandbox::class]
+            ->newInstance();
+    }
+
+    /**
+     * @return GraphQLMiddleware
+     */
+    public function getGraphQLMiddleware(): GraphQLMiddleware
+    {
+        return $this->graphqlMiddleware ??= $this->containers['factory'][GraphQLMiddleware::class]
+            ->newInstance();
+    }
+
+    public function getGraphQLPromiseAdapter(): GraphQLPromiseAdapterInterface
+    {
+        return $this->graphqlPromiseAdapter ??= $this->containers['factory'][GraphQLPromiseAdapterInterface::class]
+            ->newInstance();
     }
 }

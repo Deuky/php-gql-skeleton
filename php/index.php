@@ -8,13 +8,12 @@ use GraphQL\GraphQL;
 use GraphQL\Server\ServerConfig;
 use Overblog\DataLoader\DataLoader;
 use React\Http\Message\Response;
-use Vertuoza\Api\Graphql\Context\RequestContext;
-use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\SingletonFactory;
 use Vertuoza\Factories\UseCasesFactory;
 use Vertuoza\Kernel;
 use Vertuoza\Libs\Logger\ApplicationLogger;
 use Vertuoza\Libs\Logger\LogContext;
+use Vertuoza\Middleware\AppContext;
 
 $kernel = Kernel::getInstance();
 $kernel->init();
@@ -27,7 +26,7 @@ $useCases = new UseCasesFactory($userContext, $repositories);
 
 echo "<pre>";
 print_r(
-    SingletonFactory::getInstance(RequestContext::class)
+    SingletonFactory::getInstance(AppContext::class)
 );
 die();
 $x = $serializer->denormalize(
@@ -36,7 +35,7 @@ $x = $serializer->denormalize(
         'header_context' => [],
         'user_context' => $userContext
     ],
-    RequestContext::class
+    AppContext::class
 );
 
 print_R($x);

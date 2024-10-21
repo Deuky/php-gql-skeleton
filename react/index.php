@@ -8,8 +8,6 @@ use React\Http\Message\ServerRequest;
 use React\Http\Middleware\RequestBodyBufferMiddleware;
 use React\Http\Middleware\RequestBodyParserMiddleware;
 use React\Http\Middleware\StreamingRequestMiddleware;
-use Vertuoza\Api\Graphql\Context\RequestContext;
-use Vertuoza\Api\Graphql\GqlMiddlewares;
 use Vertuoza\Kernel;
 use Vertuoza\Libs\Logger\ApplicationLogger;
 use Vertuoza\Libs\Logger\LogContext;
@@ -28,15 +26,14 @@ ini_set('memory_limit', $_ENV['MEMORY_LIMIT']);
 
 try {
     $graphQLPromiseAdapter = new GraphQLReactPromiseAdapter();
-    $dataLoaderPromiseAdapter = $kernel->getPromiseAdapter();
 
     $http = new React\Http\HttpServer(
         new StreamingRequestMiddleware(),
         new RequestBodyBufferMiddleware(20 * 1024 * 1024),
         new RequestBodyParserMiddleware(20 * 1024 * 1024, 1),
-        GqlMiddlewares::sandbox(),
-        RequestContext::middleware(),
-        GqlMiddlewares::schema($graphQLPromiseAdapter, $dataLoaderPromiseAdapter),
+        $kernel->getSandbox(),
+        $kernel->getAppContext(),
+        $kernel->getGraphQLMiddleware(),
         fn (ServerRequest $request) => resolve(new Response(404))
     );
 

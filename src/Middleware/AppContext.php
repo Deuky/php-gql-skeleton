@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Api\Graphql\Context;
+namespace Vertuoza\Middleware;
 
 use Closure;
 use Psr\Http\Message\ResponseInterface;
@@ -9,7 +9,7 @@ use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\UseCasesFactory;
 use Vertuoza\Kernel;
 
-class RequestContext
+class AppContext
 {
     /**
      * @var ServerRequestInterface
@@ -82,34 +82,30 @@ class RequestContext
     }
 
     /**
-     * @return Closure
+     * @param ServerRequestInterface $request
+     * @param callable $next
      *
-     * @todo move middleware
+     * @return mixed
      */
-
-    public static function middleware(): Closure
+    public function __invoke(ServerRequestInterface $request, callable $next): mixed
     {
-        return function (ServerRequestInterface $request, callable $next) {
-            // Recreate a new connection each http call/
-            $kernel = Kernel::getInstance();
+        $kernel = Kernel::getInstance();
 
-            $context = new RequestContext();
-            $context->useCases = new UseCasesFactory();
-            $context->request = $request;
-            $context->userContext = $kernel->getUserContext();
+        $this->useCases = new UseCasesFactory();
+        $this->request = $request;
+        $this->userContext = $kernel->getUserContext();
 
-            return $next(
-                $request->withAttribute('app-context', $context)
-            )->then(function (ResponseInterface $response) use ($kernel, $context) {
-                foreach ($context->headers as $header) {
-                    foreach ($header as $name => $value) {
-                        $response = $response->withHeader($name, $value);
-                    }
+        return $next(
+            $request->withAttribute('app-context', $this)
+        )->then(function (ResponseInterface $response) use ($kernel) {
+            foreach ($this->headers as $header) {
+                foreach ($header as $name => $value) {
+                    $response = $response->withHeader($name, $value);
                 }
+            }
 
-                $kernel->getDatabase()->getConnection()->disconnect();
-                return $response;
-            });
-        };
+            $kernel->getDatabase()->getConnection()->disconnect();
+            return $response;
+        });
     }
 }
