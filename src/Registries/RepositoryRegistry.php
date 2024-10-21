@@ -6,5 +6,4 @@ use Vertuoza\Patterns\RegistryPattern;
 
 class RepositoryRegistry extends RegistryPattern
 {
-
 }

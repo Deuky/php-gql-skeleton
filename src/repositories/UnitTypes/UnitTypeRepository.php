@@ -76,11 +76,9 @@ class UnitTypeRepository
         $tenantId = $kernel->getUserContext()->getTenantId();
 
         if (!isset($this->getByIdsDL[$tenantId])) {
-
-            $dl = new DataLoader(function (array $ids) {
+            $this->getByIdsDL[$tenantId] = new DataLoader(function (array $ids) {
                 return $this->fetchByIds(...$ids);
             }, $this->dataLoaderPromiseAdapter);
-            $this->getByIdsDL[$tenantId] = $dl;
         }
 
         return $this->getByIdsDL[$tenantId];

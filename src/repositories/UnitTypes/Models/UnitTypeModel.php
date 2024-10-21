@@ -8,7 +8,6 @@ use Vertuoza\Attributes\PrimaryKey;
 
 class UnitTypeModel
 {
-    #[PrimaryKey]
     public string $id;
     public string $label;
     public ?DateTime $deletedAt;
