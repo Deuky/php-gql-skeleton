@@ -62,6 +62,8 @@ class Kernel extends SingletonPattern
     protected Sandbox $sandbox;
     protected GraphQLMiddleware $graphqlMiddleware;
     protected GraphQLPromiseAdapterInterface $graphqlPromiseAdapter;
+    protected array $graphqlSchema;
+    protected array $graphqlTypes;
 
     public function init(): void
     {
@@ -117,8 +119,13 @@ class Kernel extends SingletonPattern
     public function getQuery(): ObjectType
     {
         return $this->query ??= $this->containers['factory'][ObjectType::class]
-            ->addConstructorArgument('config', $this->getConfigContent('object_type'))
+            ->addConstructorArgument('config', $this->getGraphqlSchema()['query'])
             ->newInstance();
+    }
+
+    public function getGraphqlSchema()
+    {
+        return $this->graphqlSchema ??= $this->getConfigContent('graphql/schema');
     }
 
     /**
@@ -138,7 +145,7 @@ class Kernel extends SingletonPattern
     {
         return $this->schemaConfig ??= $this->containers['factory'][SchemaConfig::class]
             ->addSetter('query', $this->getQuery())
-            ->addSetter('typeLoader', [Types::class, 'byTypeName'])
+            ->addSetter('typeLoader', [$this, 'getType'])
             ->newInstance();
     }
 
@@ -237,5 +244,15 @@ class Kernel extends SingletonPattern
     {
         return $this->graphqlPromiseAdapter ??= $this->containers['factory'][GraphQLPromiseAdapterInterface::class]
             ->newInstance();
+    }
+
+    public function getType($name)
+    {
+        return $this->getTypes()[$name] ?? null;
+    }
+
+    public function getTypes()
+    {
+        return $this->graphqlTypes ??= $this->getGraphqlSchema()['types'];
     }
 }

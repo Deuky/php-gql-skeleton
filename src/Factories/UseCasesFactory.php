@@ -9,7 +9,7 @@ use Vertuoza\Usecases\UnitTypes\UnitTypeUseCases;
 /**
  * @deprecated move to kernel
  */
-class UseCasesFactory
+readonly class UseCasesFactory
 {
     /**
      * @var UnitTypeUseCases $unitType

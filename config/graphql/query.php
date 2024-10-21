@@ -1,18 +1,18 @@
 <?php
 
-use Vertuoza\Api\Graphql\Types;
+use GraphQL\Type\Definition\Type;
 
 return [
     'name' => 'Query',
     'fields' => function () {
         return [
             'hello' => [
-                'type' => Types::string(),
+                'type' => Type::string(),
                 'resolve' => function ($root, $args) {
                     return 'world';
                 }
             ],
-            ... include __DIR__.'/object_types/unit_types.php'
+            ... include __DIR__ . '/queries/unitTypes.php'
         ];
     }
 ];
