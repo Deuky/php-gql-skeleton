@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Repositories\Settings\UnitTypes;
+namespace Vertuoza\Repositories\UnitTypes;
 
 class UnitTypeMutationData
 {

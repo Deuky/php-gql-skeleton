@@ -1,11 +1,9 @@
 <?php
 
-namespace Vertuoza\Usecases\UnitTypes;
+namespace Vertuoza\UseCases\UnitTypes;
 
 use React\Promise\PromiseInterface;
-use Vertuoza\Api\Graphql\Context\UserRequestContext;
-use Vertuoza\Factories\RepositoriesFactory;
-use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
 
 /**
  * @package Vertuoza\Usecases\Settings\UnitTypes
@@ -13,25 +11,17 @@ use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeRepository;
 class UnitTypesFindManyUseCase
 {
     /**
-     * @var UserRequestContext
-     */
-    private UserRequestContext $userContext;
-
-    /**
      * @var UnitTypeRepository
      */
     private UnitTypeRepository $unitTypeRepository;
 
     /**
      * @param UnitTypeRepository $unitTypeRepository
-     * @param UserRequestContext $userContext
      */
     public function __construct(
-        UnitTypeRepository $unitTypeRepository,
-        UserRequestContext $userContext,
+        UnitTypeRepository $unitTypeRepository
     ) {
         $this->unitTypeRepository = $unitTypeRepository;
-        $this->userContext = $userContext;
     }
 
     /**
@@ -39,6 +29,6 @@ class UnitTypesFindManyUseCase
      */
     public function handle(): PromiseInterface
     {
-        return $this->unitTypeRepository->findMany($this->userContext->getTenantId());
+        return $this->unitTypeRepository->findMany();
     }
 }

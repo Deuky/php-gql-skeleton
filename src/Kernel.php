@@ -11,12 +11,10 @@ use React\Http\Message\ServerRequest;
 use Symfony\Component\Serializer\Serializer;
 use Vertuoza\Api\Graphql\Resolvers\Query;
 use Vertuoza\Api\Graphql\Types;
-use Vertuoza\Factories\RepositoriesFactory;
+use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\SingletonFactory;
 use Vertuoza\Interface\DatabaseInterface;
 use Vertuoza\Patterns\SingletonPattern;
-use Vertuoza\Repositories\Repository;
-use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeRepository;
 
 class Kernel extends SingletonPattern
 {
@@ -41,9 +39,9 @@ class Kernel extends SingletonPattern
     protected PromiseAdapterInterface $promiseAdapter;
 
     /**
-     * @var Query
+     * @var ObjectType
      */
-    protected Query $query;
+    protected ObjectType $query;
 
     /**
      * @var Schema
@@ -55,6 +53,8 @@ class Kernel extends SingletonPattern
      */
     protected SchemaConfig $schemaConfig;
     protected array $repositories;
+    protected array $useCases;
+    protected UserRequestContext $userRequestContext;
 
     public function init(): void
     {
@@ -184,5 +184,24 @@ class Kernel extends SingletonPattern
             ->addConstructorArgument('database', $this->getDatabase())
             ->addConstructorArgument('promiseAdapter', $this->getPromiseAdapter())
             ->newInstance();
+    }
+
+    public function getUseCase(string $useCaseClassName)
+    {
+        return $this->useCases[$useCaseClassName] ??= $this->containers['factory'][$useCaseClassName]
+            ->addConstructorArgument('database', $this->getDatabase())
+            ->addConstructorArgument('promiseAdapter', $this->getPromiseAdapter())
+            ->newInstance();
+    }
+
+    /**
+     * @return UserRequestContext
+     */
+    public function getUserContext(): UserRequestContext
+    {
+        return $this->userRequestContext ??= new UserRequestContext(
+            '448ef4f1-56e1-48be-838c-d147b5f09705',
+            '112c33ae-3dbe-431b-994d-fffffe6fd49b'
+        );
     }
 }

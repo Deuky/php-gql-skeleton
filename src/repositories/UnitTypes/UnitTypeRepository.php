@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Repositories\Settings\UnitTypes;
+namespace Vertuoza\Repositories\UnitTypes;
 
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\Query\Builder;
@@ -8,9 +8,9 @@ use Overblog\DataLoader\DataLoader;
 use Overblog\PromiseAdapter\PromiseAdapterInterface;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
-use Vertuoza\Repositories\Settings\UnitTypes\Models\UnitTypeMapper;
-use Vertuoza\Repositories\Settings\UnitTypes\Models\UnitTypeModel;
-
+use Vertuoza\Kernel;
+use Vertuoza\Repositories\UnitTypes\Models\UnitTypeMapper;
+use Vertuoza\Repositories\UnitTypes\Models\UnitTypeModel;
 use function React\Async\async;
 
 class UnitTypeRepository
@@ -44,19 +44,14 @@ class UnitTypeRepository
     }
 
     /**
-     * @param string $tenantId
      * @param string ...$ids
      *
      * @return PromiseInterface
      */
-    private function fetchByIds(string $tenantId, string ...$ids): PromiseInterface
+    private function fetchByIds(string ...$ids): PromiseInterface
     {
-        return async(function () use ($tenantId, $ids) {
-            $query = $this->getQueryBuilder()
-                ->where(function ($query) use ($tenantId) {
-                    $query->where([UnitTypeModel::getTenantColumnName() => $tenantId])
-                        ->orWhere(UnitTypeModel::getTenantColumnName(), null);
-                });
+        return async(function () use ($ids) {
+            $query = $this->getQueryBuilder();
             $query->whereNull('deleted_at');
             $query->whereIn(UnitTypeModel::getPkColumnName(), $ids);
 
@@ -73,16 +68,17 @@ class UnitTypeRepository
     }
 
     /**
-     * @param string $tenantId
-     *
      * @return DataLoader
      */
-    protected function getDataloader(string $tenantId): DataLoader
+    protected function getDataloader(): DataLoader
     {
+        $kernel = Kernel::getInstance();
+        $tenantId = $kernel->getUserContext()->getTenantId();
+
         if (!isset($this->getByIdsDL[$tenantId])) {
 
-            $dl = new DataLoader(function (array $ids) use ($tenantId) {
-                return $this->fetchByIds($tenantId, ...$ids);
+            $dl = new DataLoader(function (array $ids) {
+                return $this->fetchByIds(...$ids);
             }, $this->dataLoaderPromiseAdapter);
             $this->getByIdsDL[$tenantId] = $dl;
         }
@@ -95,62 +91,62 @@ class UnitTypeRepository
      */
     protected function getQueryBuilder(): Builder
     {
-        return $this->db->getConnection()->table(UnitTypeModel::getTableName());
+        $kernel = Kernel::getInstance();
+        $tenantId = $kernel->getUserContext()->getTenantId();
+
+        return $this->db->getConnection()->table(UnitTypeModel::getTableName())
+                    ->where([UnitTypeModel::getTenantColumnName() => $tenantId])
+                    ->orWhereNull(UnitTypeModel::getTenantColumnName());
     }
 
     /**
      * @param array $ids
-     * @param string $tenantId
      *
      * @return Promise
      */
-    public function getByIds(array $ids, string $tenantId): Promise
+    public function getByIds(array $ids): Promise
     {
-        return $this->getDataloader($tenantId)->loadMany($ids);
+        return $this->getDataloader()->loadMany($ids);
     }
 
     /**
      * @param string $id
-     * @param string $tenantId
      *
      * @return Promise
      */
-    public function getById(string $id, string $tenantId): Promise
+    public function getById(string $id): Promise
     {
-        return $this->getDataloader($tenantId)->load($id);
+        return $this->getDataloader()->load($id);
     }
 
-    public function countUnitTypeWithLabel(string $name, string $tenantId, string|int|null $excludeId = null)
+    /**
+     * @param string $name
+     * @param string|int|null $excludeId
+     *
+     * @return PromiseInterface
+     */
+    public function countUnitTypeWithLabel(string $name, string|int|null $excludeId = null): PromiseInterface
     {
         return async(
             fn () => $this->getQueryBuilder()
                 ->where('label', $name)
                 ->whereNull('deleted_at')
                 ->where(function ($query) use ($excludeId) {
-                    if (isset($excludeId))
+                    if (isset($excludeId)) {
                         $query->where('id', '!=', $excludeId);
-                })
-                ->where(function ($query) use ($tenantId) {
-                    $query->where(UnitTypeModel::getTenantColumnName(), '=', $tenantId)
-                        ->orWhereNull(UnitTypeModel::getTenantColumnName());
+                    }
                 })
         )();
     }
 
     /**
-     * @param string $tenantId
-     *
      * @return PromiseInterface
      */
-    public function findMany(string $tenantId): PromiseInterface
+    public function findMany(): PromiseInterface
     {
         return async(
             fn () => $this->getQueryBuilder()
                 ->whereNull('deleted_at')
-                ->where(function ($query) use ($tenantId) {
-                    $query->where(UnitTypeModel::getTenantColumnName(), '=', $tenantId)
-                        ->orWhereNull(UnitTypeModel::getTenantColumnName());
-                })
                 ->get()
                 ->map(function ($row) {
                     return UnitTypeMapper::modelToEntity(UnitTypeModel::fromStdclass($row));
@@ -160,12 +156,14 @@ class UnitTypeRepository
 
     /**
      * @param UnitTypeMutationData $data
-     * @param string $tenantId
      *
      * @return int|string
      */
-    public function create(UnitTypeMutationData $data, string $tenantId): int|string
+    public function create(UnitTypeMutationData $data): int|string
     {
+        $kernel = Kernel::getInstance();
+        $tenantId = $kernel->getUserContext()->getTenantId();
+
         return $this->getQueryBuilder()->insertGetId(
             UnitTypeMapper::serializeCreate($data, $tenantId)
         );

@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Api\Graphql\Resolvers\Settings\UnitTypes;
+namespace Vertuoza\Api\Graphql\Types\UnitTypes;
 
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;

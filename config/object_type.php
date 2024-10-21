@@ -1,6 +1,5 @@
 <?php
 
-use Vertuoza\Api\Graphql\Resolvers\Settings\UnitTypes\UnitTypeQuery;
 use Vertuoza\Api\Graphql\Types;
 
 return [
@@ -13,7 +12,7 @@ return [
                     return 'world';
                 }
             ],
-            ...UnitTypeQuery::get()
+            ... include __DIR__.'/object_types/unit_types.php'
         ];
     }
 ];

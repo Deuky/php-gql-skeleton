@@ -1,10 +1,13 @@
 <?php
 
-namespace Vertuoza\Repositories\Settings\UnitTypes\Models;
+namespace Vertuoza\Repositories\UnitTypes\Models;
 
-use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeMutationData;
-use Vertuoza\Entities\Settings\UnitTypeEntity;
+use Vertuoza\Entities\UnitTypeEntity;
+use Vertuoza\Repositories\UnitTypes\UnitTypeMutationData;
 
+/**
+ * @todo move to serializer
+ */
 class UnitTypeMapper
 {
     /**

@@ -1,11 +1,10 @@
 <?php
 
-namespace Vertuoza\Usecases\UnitTypes;
+namespace Vertuoza\UseCases\UnitTypes;
 
 use React\Promise\Promise;
-use Vertuoza\Api\Graphql\Context\UserRequestContext;
-use Vertuoza\Entities\Settings\UnitTypeEntity;
-use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeRepository;
+use Vertuoza\Entities\UnitTypeEntity;
+use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
 
 class UnitTypeByIdUseCase
 {
@@ -14,21 +13,14 @@ class UnitTypeByIdUseCase
      */
     private UnitTypeRepository $unitTypeRepository;
 
-    /**
-     * @var UserRequestContext
-     */
-    private UserRequestContext $userContext;
 
     /**
      * @param UnitTypeRepository $unitTypeRepository
-     * @param UserRequestContext $userContext
      */
     public function __construct(
-        UnitTypeRepository $unitTypeRepository,
-        UserRequestContext $userContext
+        UnitTypeRepository $unitTypeRepository
     ) {
         $this->unitTypeRepository = $unitTypeRepository;
-        $this->userContext = $userContext;
     }
 
     /**
@@ -38,6 +30,6 @@ class UnitTypeByIdUseCase
      */
     public function handle(string $id): Promise
     {
-        return $this->unitTypeRepository->getById($id, $this->userContext->getTenantId());
+        return $this->unitTypeRepository->getById($id);
     }
 }

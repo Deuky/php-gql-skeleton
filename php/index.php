@@ -9,7 +9,7 @@ use GraphQL\Server\ServerConfig;
 use Overblog\DataLoader\DataLoader;
 use React\Http\Message\Response;
 use Vertuoza\Api\Graphql\Context\RequestContext;
-use Vertuoza\Api\Graphql\Context\UserRequestContext;
+use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\SingletonFactory;
 use Vertuoza\Factories\UseCasesFactory;
 use Vertuoza\Kernel;
@@ -20,11 +20,6 @@ $kernel = Kernel::getInstance();
 $kernel->init();
 $kernel->load();
 
-
-$userContext = new UserRequestContext(
-    '448ef4f1-56e1-48be-838c-d147b5f09705',
-    '112c33ae-3dbe-431b-994d-fffffe6fd49b'
-);
 
 die();
 

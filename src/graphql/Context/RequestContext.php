@@ -5,6 +5,7 @@ namespace Vertuoza\Api\Graphql\Context;
 use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\UseCasesFactory;
 use Vertuoza\Kernel;
 
@@ -13,22 +14,22 @@ class RequestContext
     /**
      * @var ServerRequestInterface
      */
-    protected ServerRequestInterface $request;
+    public ServerRequestInterface $request;
 
     /**
      * @var UserRequestContext
      */
-    protected UserRequestContext $userContext;
+    public UserRequestContext $userContext;
 
     /**
      * @var UseCasesFactory
      */
-    protected UseCasesFactory $useCases;
+    public UseCasesFactory $useCases;
 
     /**
      * @var array
      */
-    protected array $headers = [];
+    public array $headers = [];
 
     /**
      * @param string $cookieName
@@ -90,84 +91,25 @@ class RequestContext
     {
         return function (ServerRequestInterface $request, callable $next) {
             // Recreate a new connection each http call/
-
-            $userContext = new UserRequestContext(
-                '448ef4f1-56e1-48be-838c-d147b5f09705',
-                '112c33ae-3dbe-431b-994d-fffffe6fd49b'
-            );
-
-            $useCases = new UseCasesFactory($userContext);
+            $kernel = Kernel::getInstance();
 
             $context = new RequestContext();
-            $context->setUseCases($useCases)
-                ->setRequest($request)
-                ->setUserContext($userContext);
+            $context->useCases = new UseCasesFactory();
+            $context->request = $request;
+            $context->userContext = $kernel->getUserContext();
 
             return $next(
                 $request->withAttribute('app-context', $context)
-            )->then(function (ResponseInterface $response) use ($context) {
+            )->then(function (ResponseInterface $response) use ($kernel, $context) {
                 foreach ($context->headers as $header) {
                     foreach ($header as $name => $value) {
                         $response = $response->withHeader($name, $value);
                     }
                 }
-                $kernel = Kernel::getInstance();
 
                 $kernel->getDatabase()->getConnection()->disconnect();
                 return $response;
             });
         };
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     *
-     * @return static
-     */
-    public function setRequest(ServerRequestInterface $request): static
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * @param UseCasesFactory $useCases
-     *
-     * @return static
-     */
-    public function setUseCases(UseCasesFactory $useCases): static
-    {
-        $this->useCases = $useCases;
-
-        return $this;
-    }
-
-    /**
-     * @param UserRequestContext $userContext
-     *
-     * @return static
-     */
-    public function setUserContext(UserRequestContext $userContext): static
-    {
-        $this->userContext = $userContext;
-
-        return $this;
-    }
-
-    /**
-     * @return UserRequestContext
-     */
-    public function getUserContext(): UserRequestContext
-    {
-        return $this->userContext;
-    }
-
-    /**
-     * @return UseCasesFactory
-     */
-    public function getUseCases(): UseCasesFactory
-    {
-        return $this->useCases;
     }
 }

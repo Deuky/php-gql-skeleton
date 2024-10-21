@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Api\Graphql\Context;
+namespace Vertuoza\Entities;
 
 /**
  * @todo change class name

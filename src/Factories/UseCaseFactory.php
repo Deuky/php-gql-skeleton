@@ -2,14 +2,13 @@
 
 namespace Vertuoza\Factories;
 
+use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Kernel;
+use Vertuoza\Patterns\FactoryPattern;
 use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
 use Vertuoza\Usecases\UnitTypes\UnitTypeUseCases;
 
-/**
- * @deprecated move to kernel
- */
-class UseCasesFactory
+class UseCaseFactory extends FactoryPattern
 {
     /**
      * @var UnitTypeUseCases $unitType
@@ -19,10 +18,10 @@ class UseCasesFactory
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(UserRequestContext $userContext)
     {
         $kernel = Kernel::getInstance();
 
-        $this->unitType = new UnitTypeUseCases($kernel->getRepository(UnitTypeRepository::class));
+        $this->unitType = new UnitTypeUseCases($userContext, $kernel->getRepository(UnitTypeRepository::class));
     }
 }

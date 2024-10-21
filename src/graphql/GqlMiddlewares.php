@@ -7,14 +7,11 @@ use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\GraphQL;
 use GraphQL\Server\ServerConfig;
-use GraphQL\Type\Schema;
-use GraphQL\Type\SchemaConfig;
 use Overblog\DataLoader\DataLoader;
-use Overblog\PromiseAdapter\PromiseAdapterInterface;
 use React\Http\Message\Response;
 use React\Http\Message\ServerRequest;
-use Vertuoza\Api\Graphql\Errors\GqlErrorHandler;
-use Vertuoza\Api\Graphql\Resolvers\Query;
+use Vertuoza\Errors\GqlErrorHandler;
+use Vertuoza\Kernel;
 use Vertuoza\Libs\Logger\ApplicationLogger;
 use Vertuoza\Libs\Logger\LogContext;
 use function React\Promise\resolve;
@@ -72,29 +69,22 @@ class GqlMiddlewares
 
     /**
      * @param PromiseAdapter $graphQLPromiseAdapter
-     * @param PromiseAdapterInterface $dataLoaderPromiseAdapter
      *
      * @return Closure
      */
-    public static function schema(PromiseAdapter $graphQLPromiseAdapter, PromiseAdapterInterface $dataLoaderPromiseAdapter)
+    public static function schema(PromiseAdapter $graphQLPromiseAdapter)
     {
-        $query = new Query();
-        // $mutation = new Mutation();
-
-        $schema = new Schema((
-        new SchemaConfig())
-            ->setQuery($query)
-            ->setTypeLoader([Types::class, 'byTypeName'])
-        );
-
-        return function (ServerRequest $request, $next) use ($schema, $graphQLPromiseAdapter) {
+        return function (ServerRequest $request, $next) use ($graphQLPromiseAdapter) {
             if (self::isGraphQLQueryPath($request)) {
+                $kernel = Kernel::getInstance();
+                $schema = $kernel->getSchema();
+
                 $config = new ServerConfig();
                 $config->setSchema($schema)
                     ->setErrorsHandler(function (array $errors, ?callable $formatter) use ($request) {
                         $context = $request->getAttribute('app-context');
                         ApplicationLogger::getInstance()->info('Log for bodyx with error', new LogContext(null, null), $errors);
-                        return GqlErrorHandler::handle($errors, $formatter, $context->getUserContext());
+                        return GqlErrorHandler::handle($errors, $formatter, $context->userContext);
                     });
 
                 $rawInput = $request->getBody()->__toString();

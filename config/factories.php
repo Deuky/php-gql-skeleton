@@ -14,7 +14,7 @@ use Vertuoza\Factories\Factory;
 use Vertuoza\Factories\RepositoryFactory;
 use Vertuoza\Factories\ServerRequestFactory;
 use Vertuoza\Interface\DatabaseInterface;
-use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
 
 return [
     // name =>  [factory,                       class, ...alias]

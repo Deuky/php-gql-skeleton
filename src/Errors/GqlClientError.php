@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Api\Graphql\Errors;
+namespace Vertuoza\Errors;
 
 use GraphQL\Error\ClientAware;
 use GraphQL\Error\Error;

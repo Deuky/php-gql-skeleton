@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Entities\Settings;
+namespace Vertuoza\Entities;
 
 class UnitTypeEntity
 {

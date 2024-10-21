@@ -1,9 +1,9 @@
 <?php
 
-namespace Vertuoza\Api\Graphql\Errors;
+namespace Vertuoza\Errors;
 
 use GraphQL\Error\Error;
-use Vertuoza\Api\Graphql\Context\UserRequestContext;
+use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Libs\Exceptions\BadUserInputException;
 use Vertuoza\Libs\Exceptions\BusinessException;
 use Vertuoza\Libs\Exceptions\ProvidesExceptionArgs;

@@ -1,9 +1,8 @@
 <?php
 
-namespace Vertuoza\Usecases\UnitTypes;
+namespace Vertuoza\UseCases\UnitTypes;
 
-use Vertuoza\Api\Graphql\Context\UserRequestContext;
-use Vertuoza\Repositories\Settings\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
 
 class UnitTypeUseCases
 {
@@ -18,12 +17,11 @@ class UnitTypeUseCases
     public UnitTypesFindManyUseCase $unitTypesFindMany;
 
     /**
-     * @param UserRequestContext $userContext
      * @param UnitTypeRepository $unitTypeRepository
      */
-    public function __construct(UserRequestContext $userContext, UnitTypeRepository $unitTypeRepository)
+    public function __construct(UnitTypeRepository $unitTypeRepository)
     {
-        $this->unitTypeById = new UnitTypeByIdUseCase($unitTypeRepository, $userContext);
-        $this->unitTypesFindMany = new UnitTypesFindManyUseCase($unitTypeRepository, $userContext);
+        $this->unitTypeById = new UnitTypeByIdUseCase($unitTypeRepository);
+        $this->unitTypesFindMany = new UnitTypesFindManyUseCase($unitTypeRepository);
     }
 }
