@@ -2,9 +2,9 @@
 
 namespace Vertuoza\UseCases\UnitTypes;
 
-use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypeRepository;
 
-class UnitTypeUseCases
+readonly class UnitTypeUseCases
 {
     /**
      * @var UnitTypeByIdUseCase

@@ -2,12 +2,13 @@
 
 namespace Vertuoza\Entities;
 
-use Vertuoza\Attributes\PrimaryKey;
+use Illuminate\Database\Eloquent\Model;
 
-class UnitTypeEntity
+class UnitTypeEntity extends Model
 {
-    #[PrimaryKey]
-    public string $id;
-    public string $name;
-    public bool $isSystem;
+    public $incrementing = false;
+    protected $table = 'unit_type';
+    protected $primaryKey = 'id';
+    protected $tenantKey = 'tenant_id';
+
 }

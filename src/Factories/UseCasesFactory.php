@@ -3,7 +3,7 @@
 namespace Vertuoza\Factories;
 
 use Vertuoza\Kernel;
-use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypeRepository;
 use Vertuoza\Usecases\UnitTypes\UnitTypeUseCases;
 
 /**

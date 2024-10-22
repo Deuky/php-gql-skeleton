@@ -9,7 +9,6 @@ use Illuminate\Database\Capsule\Manager;
 use Overblog\PromiseAdapter\PromiseAdapterInterface as OverblogPromiseAdapterInterface;
 use React\Http\Message\ServerRequest;
 use Symfony\Component\Serializer\Serializer;
-use Vertuoza\Api\Graphql\Types;
 use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Factories\SingletonFactory;
 use Vertuoza\Interface\DatabaseInterface;
@@ -18,6 +17,7 @@ use Vertuoza\Middleware\GraphQLMiddleware;
 use Vertuoza\Middleware\Sandbox;
 use Vertuoza\Patterns\SingletonPattern;
 use GraphQL\Executor\Promise\PromiseAdapter as GraphQLPromiseAdapterInterface;
+use Vertuoza\Serializer\Denormalizer\EntityDernormalizer;
 
 class Kernel extends SingletonPattern
 {
@@ -64,6 +64,7 @@ class Kernel extends SingletonPattern
     protected GraphQLPromiseAdapterInterface $graphqlPromiseAdapter;
     protected array $graphqlSchema;
     protected array $graphqlTypes;
+    protected Serializer $serializer;
 
     public function init(): void
     {
@@ -96,6 +97,8 @@ class Kernel extends SingletonPattern
                 $this->containers['factory'][$alias] = &$this->containers['factory'][$index];
             }
         }
+
+        $this->getDatabase()->bootEloquent();
     }
 
     public function getServerRequest(): ServerRequest
@@ -152,10 +155,16 @@ class Kernel extends SingletonPattern
     /**
      * @return Serializer
      */
-    public function serializer(): Serializer
+    public function getSerializer(): Serializer
     {
-        die('lklk');
-        return SingletonFactory::getInstance(Serializer::class);
+        return $this->serializer ??= $this->containers['factory'][Serializer::class]
+            ->addConstructorArgument(
+                'normalizers',
+                [
+                    new EntityDernormalizer()
+                ]
+            )
+            ->newInstance();
     }
 
     /**
@@ -195,16 +204,12 @@ class Kernel extends SingletonPattern
     public function getRepository(string $repositoryClassName)
     {
         return $this->repositories[$repositoryClassName] ??= $this->containers['factory'][$repositoryClassName]
-            ->addConstructorArgument('database', $this->getDatabase())
-            ->addConstructorArgument('promiseAdapter', $this->getOverblogPromiseAdapter())
             ->newInstance();
     }
 
     public function getUseCase(string $useCaseClassName)
     {
         return $this->useCases[$useCaseClassName] ??= $this->containers['factory'][$useCaseClassName]
-            ->addConstructorArgument('database', $this->getDatabase())
-            ->addConstructorArgument('promiseAdapter', $this->getOverblogPromiseAdapter())
             ->newInstance();
     }
 

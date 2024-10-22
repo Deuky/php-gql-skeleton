@@ -1,6 +1,6 @@
 <?php
 
-use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypeRepository;
 
 return [
     UnitTypeRepository::class

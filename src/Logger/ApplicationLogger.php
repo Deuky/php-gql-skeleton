@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Libs\Logger;
+namespace Vertuoza\Logger;
 
 require_once __DIR__ . '/GcpLoggerFormatter.php';
 require_once __DIR__ . '/LogContext.php';
@@ -9,7 +9,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LogLevel;
 use Stringable;
-use Throwable;
 
 class ApplicationLogger
 {

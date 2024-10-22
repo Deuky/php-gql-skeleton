@@ -3,11 +3,8 @@
 namespace Vertuoza\UseCases\UnitTypes;
 
 use React\Promise\PromiseInterface;
-use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypeRepository;
 
-/**
- * @package Vertuoza\Usecases\Settings\UnitTypes
- */
 class UnitTypesFindManyUseCase
 {
     /**

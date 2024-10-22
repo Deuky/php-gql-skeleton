@@ -4,12 +4,12 @@ namespace Vertuoza\Errors;
 
 use GraphQL\Error\Error;
 use Vertuoza\Entities\UserRequestContext;
-use Vertuoza\Libs\Exceptions\BadUserInputException;
-use Vertuoza\Libs\Exceptions\BusinessException;
-use Vertuoza\Libs\Exceptions\ProvidesExceptionArgs;
-use Vertuoza\Libs\Exceptions\UnauthorizedTenantException;
-use Vertuoza\Libs\Logger\ApplicationLogger;
-use Vertuoza\Libs\Logger\LogContext;
+use Vertuoza\Exceptions\BadUserInputException;
+use Vertuoza\Exceptions\BusinessException;
+use Vertuoza\Exceptions\ProvidesExceptionArgs;
+use Vertuoza\Exceptions\UnauthorizedTenantException;
+use Vertuoza\Logger\ApplicationLogger;
+use Vertuoza\Logger\LogContext;
 
 class GqlErrorHandler
 {

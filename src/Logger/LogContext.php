@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Libs\Logger;
+namespace Vertuoza\Logger;
 
 class LogContext
 {

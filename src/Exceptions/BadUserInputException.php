@@ -1,8 +1,9 @@
 <?php
 
-namespace Vertuoza\Libs\Exceptions;
+namespace Vertuoza\Exceptions;
 
 use Throwable;
+use Vertuoza\Libs\Exceptions\Array;
 
 // To use when the user input contains data that not allowed the process to continue. Due to business rules
 class BadUserInputException extends BadRequestException

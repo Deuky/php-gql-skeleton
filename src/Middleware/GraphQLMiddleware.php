@@ -12,8 +12,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Message\Response;
 use Vertuoza\Errors\GqlErrorHandler;
 use Vertuoza\Kernel;
-use Vertuoza\Libs\Logger\ApplicationLogger;
-use Vertuoza\Libs\Logger\LogContext;
+use Vertuoza\Logger\ApplicationLogger;
+use Vertuoza\Logger\LogContext;
 
 class GraphQLMiddleware
 {

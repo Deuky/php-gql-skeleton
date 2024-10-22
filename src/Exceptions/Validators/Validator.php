@@ -1,6 +1,8 @@
 <?php
 
-namespace Vertuoza\Libs\Exceptions\Validators;
+namespace Vertuoza\Exceptions\Validators;
+
+use Vertuoza\Libs\Exceptions\Validators\FieldError;
 
 abstract class Validator
 {

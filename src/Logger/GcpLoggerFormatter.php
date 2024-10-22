@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Libs\Logger;
+namespace Vertuoza\Logger;
 
 use Monolog\Formatter\JsonFormatter;
 use Monolog\LogRecord;

@@ -4,7 +4,7 @@ namespace Vertuoza\UseCases\UnitTypes;
 
 use React\Promise\Promise;
 use Vertuoza\Entities\UnitTypeEntity;
-use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypeRepository;
 
 class UnitTypeByIdUseCase
 {

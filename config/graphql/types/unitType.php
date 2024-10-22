@@ -6,7 +6,7 @@ use GraphQL\Type\Definition\Type;
 
 return new ObjectType([
     'name' => 'UnitType',
-    'description' => 'Unit type"',
+    'description' => 'Unit type',
     'fields' => static fn (): array => [
         'id' => [
             'description' => "Unique identifier of the unit type",
@@ -14,11 +14,13 @@ return new ObjectType([
         ],
         'name' => [
             'description' => "Name of the unit type",
+            'resolve' => fn($obj) => $obj->label,
             'type' => Type::string()
         ],
         'isSystem' => [
             'description' => "To know if the unit type has been created by the user or is a system unit type of Vertuoza",
-            'type' => new NonNull(Type::boolean())
+            'type' => new NonNull(Type::boolean()),
+            'resolve' => fn($obj) => (($obj->tenantId ?? null) === null),
         ],
     ],
 ]);

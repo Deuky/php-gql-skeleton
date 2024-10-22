@@ -5,7 +5,7 @@ namespace Vertuoza\Factories;
 use Vertuoza\Entities\UserRequestContext;
 use Vertuoza\Kernel;
 use Vertuoza\Patterns\FactoryPattern;
-use Vertuoza\Repositories\UnitTypes\UnitTypeRepository;
+use Vertuoza\Repositories\UnitTypeRepository;
 use Vertuoza\Usecases\UnitTypes\UnitTypeUseCases;
 
 class UseCaseFactory extends FactoryPattern
@@ -22,6 +22,7 @@ class UseCaseFactory extends FactoryPattern
     {
         $kernel = Kernel::getInstance();
 
+        die('kk');
         $this->unitType = new UnitTypeUseCases($userContext, $kernel->getRepository(UnitTypeRepository::class));
     }
 }

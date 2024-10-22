@@ -1,8 +1,8 @@
 <?php
 
-namespace Vertuoza\Libs\Exceptions\Validators;
+namespace Vertuoza\Exceptions\Validators;
 
-use Vertuoza\Libs\Exceptions\FieldError;
+use Vertuoza\Exceptions\FieldError;
 
 class StringValidator extends Validator
 {

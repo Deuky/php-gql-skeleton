@@ -11,8 +11,8 @@ use React\Http\Message\Response;
 use Vertuoza\Factories\SingletonFactory;
 use Vertuoza\Factories\UseCasesFactory;
 use Vertuoza\Kernel;
-use Vertuoza\Libs\Logger\ApplicationLogger;
-use Vertuoza\Libs\Logger\LogContext;
+use Vertuoza\Logger\ApplicationLogger;
+use Vertuoza\Logger\LogContext;
 use Vertuoza\Middleware\AppContext;
 
 $kernel = Kernel::getInstance();

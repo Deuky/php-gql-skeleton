@@ -1,6 +1,6 @@
 <?php
 
-namespace Vertuoza\Libs\Exceptions;
+namespace Vertuoza\Exceptions;
 
 require_once __DIR__ . "/ProvidesExceptionArgs.php";
 
